@@ -1,9 +1,10 @@
-# To read the data files into a copy of postgres, first trim the header line from the datafile, then execute the following command (with your location for your trimmed datafile) at the psql shell:
-# copy patient_charges from '<location to Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv>' csv;
+-- To read the data files into a copy of postgres, first trim the header line from the datafile, then execute the following command (with your location for your trimmed datafile) at the psql shell:
+-- copy patient_charges from '<location to Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv>' csv;
 
-# Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
-# preprocess-survey-data.R or similar means will do pre-processing
+-- Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
+-- preprocess-survey-data.R or similar means will do pre-processing
 
+drop table if exists patient_charges;
 create table patient_charges (
   treatment varchar(1000) not null,
   provider_id int not null,
@@ -18,6 +19,7 @@ create table patient_charges (
   average_total_payments float not null
 );
 
+drop table if exists survey_results;
 create table survey_results (
   provider_id int not null,
   provider_name varchar(500) not null,
@@ -63,5 +65,7 @@ create table survey_results (
   footnotes varchar(2000)
 );
 
-copy patient_charges from '~/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
-copy survey_results from '~/code-projects/code4health/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
+copy patient_charges from '/Users/stetzer/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
+copy survey_results from '/Users/stetzer/code-projects/code4health/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
+
+vacuum full analyze;
