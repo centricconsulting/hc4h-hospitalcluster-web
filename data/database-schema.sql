@@ -4,9 +4,15 @@
 -- Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
 -- preprocess-survey-data.R or similar means will do pre-processing
 
+drop table if exists treatments;
+create table treatments (
+  id int not null primary key,
+  description varchar(200) not null
+);
+
 drop table if exists patient_charges;
 create table patient_charges (
-  treatment varchar(1000) not null,
+  treatment varchar(250) not null,
   provider_id int not null,
   provider_name varchar(500) not null,
   provider_address varchar(500) not null,
@@ -21,7 +27,7 @@ create table patient_charges (
 
 drop table if exists survey_results;
 create table survey_results (
-  provider_id int not null,
+  provider_id int not null primary key,
   provider_name varchar(500) not null,
   provider_address varchar(500) not null,
   provider_address2 varchar(500),
@@ -65,10 +71,18 @@ create table survey_results (
   footnotes varchar(2000)
 );
 
+grant select on treatments to wwwrun;
 grant select on patient_charges to wwwrun;
 grant select on survey_results to wwwrun;
 
 copy patient_charges from '/Users/stetzer/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
 copy survey_results from '/Users/stetzer/code-projects/code4health/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
+
+insert into treatments (id, description) select distinct substr(treatment, 0, 4)::int, substr(treatment, 7, length(treatment)) from patient_charges;
+alter table patient_charges add column treatment_id int references treatments(id);
+update patient_charges set treatment_id=(select id from treatments where id=substr(treatment, 0, 4)::int);
+alter table patient_charges alter column treatment_id set not null;
+alter table patient_charges drop column treatment;
+alter table patient_charges add primary key(treatment_id, provider_id);
 
 vacuum full analyze;
