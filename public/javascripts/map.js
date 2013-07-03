@@ -25,11 +25,3 @@ nokia.mh5.app.embed({
         } 
     } 
 });
-
-setTimeout(function () {
-    $('#search-panel-div').addClass('slideup');
-});
-
-$('#search-panel-div').click($.proxy(function (e) {
-    $(e.currentTarget).addClass('slideup');
-}, this));
