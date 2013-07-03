@@ -4,13 +4,20 @@
 -- Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
 -- preprocess-survey-data.R or similar means will do pre-processing
 
-drop table if exists treatments;
-create table treatments (
-  id int not null primary key,
-  description varchar(200) not null
+drop table if exists treatment_groups cascade;
+create table treatment_groups (
+  id serial primary key,
+  description varchar(100) not null
 );
 
-drop table if exists patient_charges;
+drop table if exists treatments cascade;
+create table treatments (
+  id int not null primary key,
+  description varchar(200) not null,
+  treatment_group_id int references treatment_groups(id)
+);
+
+drop table if exists patient_charges cascade;
 create table patient_charges (
   treatment varchar(250) not null,
   provider_id int not null,
@@ -25,7 +32,7 @@ create table patient_charges (
   average_total_payments float not null
 );
 
-drop table if exists survey_results;
+drop table if exists survey_results cascade;
 create table survey_results (
   provider_id int not null primary key,
   provider_name varchar(500) not null,
@@ -71,6 +78,7 @@ create table survey_results (
   footnotes varchar(2000)
 );
 
+grant select on treatment_groups to wwwrun;
 grant select on treatments to wwwrun;
 grant select on patient_charges to wwwrun;
 grant select on survey_results to wwwrun;
