@@ -1,4 +1,7 @@
-var $search = $('#search-panel-div');
+var $search = $('#search-panel');
+
+//init the html5 sortable control
+$('.sortable').sortable().bind('sortupdate', onSortUpdate);
 
 setTimeout(function () {
 	$search.addClass('slideLeft');
@@ -21,21 +24,23 @@ setTimeout(function () {
 
     	$search.anima({x: value}, 400);
 	});
-
-	$('#searchBtn').click(doSearch);
 }, 1500);
 
+function onSortUpdate (e, ui) {
+    var $currentTarget = $(e.currentTarget);
 
+    var liItems = $currentTarget.children();
+    var order = [];
+
+    liItems.each(function (index, liItem) {
+        order.push($(liItem).data('value'));
+    });
+
+    console.log(order);
+}
 
 function doSearch () {
-	var proximity = $('#proximity').val(),
-		price = $('#proximity').val(),
-		overall = $('#proximity').val(),
-		clean = $('#proximity').val(),
-		doctor = $('#proximity').val(),
-		nurse = $('#proximity').val();
-
-		//make API call
+	//make API call
 }
 
 function searchSuccess () {
