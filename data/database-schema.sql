@@ -4,6 +4,18 @@
 -- Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
 -- preprocess-survey-data.R or similar means will do pre-processing
 
+drop table if exists facilities cascade;
+create table facilities (
+  id int not null primary key,
+  name varchar(500) not null,
+  address varchar(500) not null,
+  city varchar(75) not null,
+  state varchar(2) not null,
+  zip varchar(5) not null,
+  latitude float,
+  longitude float
+);
+
 drop table if exists treatment_groups cascade;
 create table treatment_groups (
   id serial primary key,
@@ -86,11 +98,26 @@ grant select on survey_results to wwwrun;
 copy patient_charges from '/Users/stetzer/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
 copy survey_results from '/Users/stetzer/code-projects/code4health/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
 
+insert into facilities (id, name, address, city, state, zip)
+  select distinct provider_id, provider_name, provider_address, provider_city, provider_state, provider_zip from patient_charges;
+alter table patient_charges add column facility_id int references facilities(id);
+update patient_charges set facility_id=(select id from facilities where id=provider_id);
+alter table patient_charges alter column facility_id set not null;
+alter table patient_charges drop column provider_id;
+alter table patient_charges drop column provider_name;
+alter table patient_charges drop column provider_address;
+alter table patient_charges drop column provider_city;
+alter table patient_charges drop column provider_state;
+alter table patient_charges drop column provider_zip;
+
+-- TODO - fill in lat/long details for facilities
+
 insert into treatments (id, description) select distinct substr(treatment, 0, 4)::int, substr(treatment, 7, length(treatment)) from patient_charges;
 alter table patient_charges add column treatment_id int references treatments(id);
 update patient_charges set treatment_id=(select id from treatments where id=substr(treatment, 0, 4)::int);
 alter table patient_charges alter column treatment_id set not null;
 alter table patient_charges drop column treatment;
-alter table patient_charges add primary key(treatment_id, provider_id);
+
+alter table patient_charges add primary key(treatment_id, facility_id);
 
 vacuum full analyze;
