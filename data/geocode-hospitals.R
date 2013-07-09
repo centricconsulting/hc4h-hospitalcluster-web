@@ -1,16 +1,6 @@
-charges <- read.csv("~/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv",
-                   header=T, comment.char="", stringsAsFactors=F)
-
 library(RCurl)
 library(RJSONIO)
-library(sqldf)
-
-colnames(charges)[4] <- "street_address"
-colnames(charges)[5] <- "city"
-colnames(charges)[6] <- "state"
-colnames(charges)[7] <- "zip"
-
-addresses <- sqldf("select distinct street_address, city, state, zip from charges")
+library(RPostgreSQL)
 
 construct.geocode.url <- function(address, return.call = "json", sensor = "false") {
   root <- "http://maps.google.com/maps/api/geocode/"
@@ -34,14 +24,19 @@ gGeoCode <- function(address,verbose=FALSE) {
 
 limit.head <- 100
 
-geocoded <- data.frame(address=paste(paste(addresses$street_address, addresses$city, addresses$state, sep=", "), addresses$zip, sep=" "))
-geocoded <- head(geocoded, n=limit.head)
+con <- dbConnect(PostgreSQL(), user="postgres", password="", dbname="hospital_cluster")
+addresses <- dbGetQuery(con, paste("select * from facilities order by id limit ", limit.head, sep=""))
 
-geo.codes <- sapply(geocoded$address, gGeoCode)
+addresses$searchAddress <- paste(paste(addresses$address, addresses$city, addresses$state, sep=", "), addresses$zip, sep=" ")
 
-geocoded$latitude <- geo.codes[1,]
-geocoded$longitude <- geo.codes[2,]
+geocodes <- sapply(addresses$searchAddress, gGeoCode)
 
-write.table(geocoded,
+addresses$latitude <- geocodes[1,]
+addresses$longitude <- geocodes[2,]
+addresses$searchAddress <- NULL
+
+write.table(addresses,
             file="~/code-projects/code4health/data/geocoded-addresses.csv",
             na="", sep=",", quote=T, col.names=F, row.names=F)
+
+dbDisconnect(con)
