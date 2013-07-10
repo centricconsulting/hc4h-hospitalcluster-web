@@ -98,6 +98,10 @@ grant select on treatment_groups to wwwrun;
 grant select on treatments to wwwrun;
 grant select on patient_charges to wwwrun;
 grant select on survey_results to wwwrun;
+grant select on facilities to wwwrun;
+
+-- General permissions required
+grant select on spatial_ref_sys to wwwrun;
 
 copy patient_charges from '/Users/stetzer/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
 copy survey_results from '/Users/stetzer/code-projects/code4health/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
