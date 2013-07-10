@@ -4,6 +4,10 @@
 -- Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
 -- preprocess-survey-data.R or similar means will do pre-processing
 
+-- Note: requires postgis to be installed
+--create extension postgis;
+--create extension postgis_topology;
+
 drop table if exists facilities cascade;
 create table facilities (
   id int not null primary key,
@@ -100,7 +104,7 @@ copy survey_results from '/Users/stetzer/code-projects/code4health/data/Survey_o
 
 insert into facilities (id, name, address, city, state, zip)
   select distinct provider_id, provider_name, provider_address, provider_city, provider_state, provider_zip from patient_charges;
-alter table patient_charges add column facility_id int references facilities(id);
+alter table patient_charges add column facility_id int;
 update patient_charges set facility_id=(select id from facilities where id=provider_id);
 alter table patient_charges alter column facility_id set not null;
 alter table patient_charges drop column provider_id;
@@ -110,7 +114,13 @@ alter table patient_charges drop column provider_city;
 alter table patient_charges drop column provider_state;
 alter table patient_charges drop column provider_zip;
 
--- TODO - fill in lat/long details for facilities
+-- TODO - this is messy, find a better way
+truncate table facilities;
+copy facilities from '/Users/stetzer/code-projects/code4health/data/facilities-geocoded.csv' csv;
+alter table patient_charges add constraint "patient_charges_facility_id_fkey" foreign key (facility_id) references facilities(id);
+alter table facilities add column geo_point geography;
+update facilities set geo_point=ST_Point(longitude, latitude);
+alter table facilities alter column geo_point set not null;
 
 insert into treatments (id, description) select distinct substr(treatment, 0, 4)::int, substr(treatment, 7, length(treatment)) from patient_charges;
 alter table patient_charges add column treatment_id int references treatments(id);
