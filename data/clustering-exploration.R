@@ -8,7 +8,7 @@ facilities <- dbGetQuery(con,
 
 cluster <- data.frame(distance=facilities$distance_km, charges=facilities$covered_charges)
 row.names(cluster) <- facilities$id
-fit <- kmeans(cluster, 3)
+fit <- kmeans(cluster, floor((max(cluster$charges)-min(cluster$charges))/sd(cluster$charges)))
 cluster <- data.frame(cluster, cluster=factor(fit$cluster))
 
 print(qplot(distance, charges, data=cluster, colour=cluster, size=I(6)))
