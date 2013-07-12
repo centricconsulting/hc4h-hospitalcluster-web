@@ -1,12 +1,10 @@
 package helper
 
-import models.FacilityRanking
-
 import collection.JavaConversions._
 
-import org.apache.commons.math3.ml.clustering.{Clusterable, DoublePoint, KMeansPlusPlusClusterer}
-import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
+import org.apache.commons.math3.ml.clustering._
 import org.apache.commons.math3.stat.StatUtils._
+import models.FacilityRanking
 
 case class ClusterableFacility(facility:FacilityRanking, var cluster:Int = 0) extends Clusterable {
   def getPoint: Array[Double] = {Array(facility.averageCharges)}
@@ -19,6 +17,11 @@ object KMeansClusterer {
     val numClusters = Math.floor((max(charges) - min(charges))/sd).toInt
 
     val clusterer = new KMeansPlusPlusClusterer[ClusterableFacility](numClusters, 10)
-    clusterer.cluster(toCluster.map(new ClusterableFacility(_)).toIterable).flatMap(_.getPoints).toSeq
+    val facilities = toCluster.map(new ClusterableFacility(_))
+    val clustered = clusterer.cluster(facilities)
+    var index = 0
+    clustered.foreach{lst => index = index+1; lst.getPoints.foreach(_.cluster = index)}
+
+    facilities
   }
 }
