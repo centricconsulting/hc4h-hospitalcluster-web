@@ -50,6 +50,7 @@ object ApiController extends Controller {
                   Map(
                     "distance" -> f.facility.distance.toString,
                     "charges" -> f.facility.averageCharges.toString,
+                    "name" -> f.facility.facility.name,
                     "address" -> f.facility.facility.address,
                     "city" -> f.facility.facility.city,
                     "state" -> f.facility.facility.state,
