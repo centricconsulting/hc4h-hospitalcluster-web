@@ -40,6 +40,11 @@ nokia.mh5.app.controller.current.page.map._cartoPOI.deactivate();
 nokia.Settings.set("appId", "nwnAXT8rzAkbVKD9pXUU"); 
 nokia.Settings.set("authenticationToken", "XNxljzyENzuU67zixuhmEA");
 
+var $treatmentGroups = $('#treatmentGroups');
+$treatmentGroups.change(function (e) {
+    doSearch(globalNS.map.center);
+});
+
 var mapContainer = document.getElementById("mapContainer");
 
 var infoBubbles = new nokia.maps.map.component.InfoBubbles();
@@ -65,16 +70,28 @@ globalNS.map = map;
 globalNS.TOUCH = nokia.maps.dom.Page.browser.touch
 globalNS.TOUCHORCLICK = globalNS.TOUCHORCLICK ? "tap" : "click";
 
-if (nokia.maps.positioning.Manager) {
-    var positioning = new nokia.maps.positioning.Manager();
-    
-    // Gets the current position, if available the first given callback function is executed else the second
-    positioning.getCurrentPosition(getPositionSuccess, getPositionError);
-}
+$.getJSON('/api/listTreatmentGroups', function (data) {
+    var treatments = data.treatments;
+
+    $.each(treatments, function (index, element) {
+        $treatmentGroups.append($('<option value="' + element.id + '">' + element.description + '</option>'));
+    });
+}).done(function () {
+    if (nokia.maps.positioning.Manager) {
+        var positioning = new nokia.maps.positioning.Manager();
+        
+        // Gets the current position, if available the first given callback function is executed else the second
+        positioning.getCurrentPosition(getPositionSuccess, getPositionError);
+    }
+});
 
 function getPositionSuccess (position) {
     var coords = position.coords, // we retrieve the longitude/latitude from position
-        marker = new nokia.maps.map.StandardMarker(coords), // creates a marker
+        marker = new nokia.maps.map.StandardMarker(coords, {
+            brush: {
+                color: '#666'
+            }
+        }), // creates a marker
         /* Create a circle map object  on the  geographical coordinates of
          * provided position with a radius in meters of the accuracy of the position
          */

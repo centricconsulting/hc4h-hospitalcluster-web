@@ -43,7 +43,7 @@ function doSearch (coords) {
         lat: coords.latitude, 
         lon: coords.longitude, 
         sort: getSortOrder(),
-        treatment_group_id: 1,
+        treatment_group_id: parseInt($treatmentGroups.val(), 10),
     }, searchSuccess).fail(searchError);
 }
 
