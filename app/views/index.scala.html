@@ -28,7 +28,7 @@
 @scripts = {
   <script src="@routes.Assets.at("javascripts/jquery.sortable.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/minimit-anima.min.js")" type="text/javascript"></script>
-  <script src="http://api.maps.nokia.com/2.2.4/jsl.js?with=all" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/jsl.js?with=all")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/helpers.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/search.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/map.js")" type="text/javascript"></script>
@@ -42,12 +42,9 @@
       <h6>Drag to reorder these items.</h6>
       <legend></legend>
       <ul class="sortable">
-        <li data-value="proximity">Proximity</li>
-        <li data-value="price">Price</li>
-        <li data-value="overall">Overall Rating</li>
-        <li data-value="cleanliness">Cleanliness</li>
-        <li data-value="doctor-rating">Doctor Rating</li>
-        <li data-value="nurse rating">Nurse Rating</li>
+        <li data-value="charges">Charges</li>
+        <li data-value="outcomes">Outcomes</li>
+        <li data-value="distance">Distance</li>
       </ul>
     </div>
   </div>
