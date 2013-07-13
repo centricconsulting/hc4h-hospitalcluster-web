@@ -8,13 +8,15 @@ case class Facility(id:Int, name:String, address:String, city:String, state:Stri
 case class FacilityRanking(facility:Facility, averageCharges:Double, distance:Double)
 
 object Facilities {
-  def findNearestFacilities(latitude:Double, longitude:Double, limit:Int = 20) : Seq[FacilityRanking] = {
+  def findNearestFacilities(latitude:Double, longitude:Double, treatmentGroupId:Int, limit:Int = 20) : Seq[FacilityRanking] = {
     DB.withConnection { implicit connection =>
       SQL("select f.id, name, address, city, state, zip, latitude, longitude, outcome_rank, avg(average_total_payments) as charges, " +
           "ST_Distance(ST_Point({longitude},{latitude}), geo_point)/1000 as distance_km from patient_charges pc join facilities f on pc.facility_id=f.id " +
-          "where treatment_id in (280,281,282) group by f.id, f.geo_point order by distance_km asc limit {limit}")
+          "where treatment_id in (select id from treatments where treatment_group_id={treatmentGroupId}) " +
+          "group by f.id, f.geo_point order by distance_km asc limit {limit}")
         .on("latitude" -> latitude)
         .on("longitude" -> longitude)
+        .on("treatmentGroupId" -> treatmentGroupId)
         .on("limit" -> limit)
         .apply()
         .map( row =>
