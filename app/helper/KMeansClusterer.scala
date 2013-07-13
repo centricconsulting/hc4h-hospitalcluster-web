@@ -5,9 +5,10 @@ import collection.JavaConversions._
 import org.apache.commons.math3.ml.clustering._
 import org.apache.commons.math3.stat.StatUtils._
 import models.FacilityRanking
+import scala.Array
 
-case class ClusterableFacility(facility:FacilityRanking, var cluster:Int = 0, var weight:Double = 0) extends Clusterable {
-  def getPoint: Array[Double] = {Array(facility.averageCharges)}
+case class ClusterableFacility(facility:FacilityRanking, criteria:(models.FacilityRanking) => Array[Double], var cluster:Int = 0, var weight:Double = 0) extends Clusterable {
+  def getPoint: Array[Double] = criteria.apply(this.facility)
 }
 
 object KMeansClusterer {
@@ -17,7 +18,12 @@ object KMeansClusterer {
     val numClusters = Math.floor((max(charges) - min(charges))/sd).toInt
 
     val clusterer = new KMeansPlusPlusClusterer[ClusterableFacility](numClusters, 10)
-    val facilities = toCluster.map(new ClusterableFacility(_))
+    val criteriaFunction = sortParams(0) match {
+      case "outcomes" => {f:models.FacilityRanking => Array(f.facility.outcomeRank)}
+      case "distance" => {f:models.FacilityRanking => Array(f.distance)}
+      case _ => {f:models.FacilityRanking => Array(f.averageCharges)}
+    }
+    val facilities = toCluster.map(new ClusterableFacility(_, criteriaFunction))
     val clustered = clusterer.cluster(facilities)
     clustered.map{l =>
       val toSort = l.getPoints
