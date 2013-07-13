@@ -1,7 +1,7 @@
 var $search = $('#search-panel');
 
 //init the html5 sortable control
-$('.sortable').sortable().bind('sortupdate', onSortUpdate);
+$('.sortable').sortable().bind('sortupdate', onSortOrderUpdate);
 
 setTimeout(function () {
 	$search.addClass('slideLeft');
@@ -21,22 +21,24 @@ setTimeout(function () {
 	});
 }, 1500);
 
-function onSortUpdate (e, ui) {
-    var $currentTarget = $(e.currentTarget);
+function onSortOrderUpdate () {
+    doSearch(globalNS.map.center);
+}
 
-    var liItems = $currentTarget.children();
+function getSortOrder () {
+    var liItems = $('#priority-list').children();
     var order = [];
 
     liItems.each(function (index, liItem) {
         order.push($(liItem).data('value'));
     });
 
-    console.log(order);
+    return order.join(',');
 }
 
 function doSearch (coords) {
 	//make API call
-    $.getJSON('/api/findFacilities', { lat: coords.latitude, lon: coords.longitude }, searchSuccess).fail(searchError);
+    $.getJSON('/api/findFacilities', { lat: coords.latitude, lon: coords.longitude, sort: getSortOrder() }, searchSuccess).fail(searchError);
 }
 
 function searchSuccess (data) {
@@ -52,7 +54,8 @@ function searchSuccess (data) {
         var marker = {
             latitude: parseFloat(facility.latitude), 
             longitude: parseFloat(facility.longitude),
-            value: parseFloat(facility.cluster)
+            value: parseFloat(facility.cluster),
+            address: facility.address + ', ' + facility.city + ', ' + facility.state + ', ' + facility.zip
         };
 
         markers.push(marker);

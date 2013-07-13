@@ -42,10 +42,13 @@ nokia.Settings.set("authenticationToken", "XNxljzyENzuU67zixuhmEA");
 
 var mapContainer = document.getElementById("mapContainer");
 
+var infoBubbles = new nokia.maps.map.component.InfoBubbles();
+
 var map = new nokia.maps.map.Display(mapContainer, {
         // Zoom level for the map
         'zoomLevel': 9,
-        components: [ 
+        components: [
+            infoBubbles,
             // Behavior collection
             new nokia.maps.map.component.Behavior(),
             new nokia.maps.map.component.ZoomBar(),
@@ -59,6 +62,8 @@ var map = new nokia.maps.map.Display(mapContainer, {
 );
 
 globalNS.map = map;
+globalNS.TOUCH = nokia.maps.dom.Page.browser.touch
+globalNS.TOUCHORCLICK = globalNS.TOUCHORCLICK ? "tap" : "click";
 
 if (nokia.maps.positioning.Manager) {
     var positioning = new nokia.maps.positioning.Manager();
@@ -126,11 +131,16 @@ function onMapViewChange (event) {
     }
 }
 
-// Create the Clustering Provider
+/*
+* ClusterProvider
+*/
+
 var ClusterProvider = nokia.maps.clustering.ClusterProvider,
+    theme = new CustomTheme(map, infoBubbles),
     clusterProvider = new ClusterProvider(globalNS.map, {
         eps: 16,
         minPts: 1,
+        theme: theme,
         dataPoints: []
     });
 
