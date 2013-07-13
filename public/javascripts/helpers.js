@@ -1,3 +1,4 @@
-function apiGetRequest () {
-	
-}
+//just a global namespace
+var global = {
+
+};
