@@ -1,4 +1,4 @@
-/*
+/* This commented out code is for Nokia Mobile HTML5 map
 //Play has some problems with mapping subfolders from the assets folder
 nokia.mh5.assetsPath = "http://api.maps.nokia.com/mobile/1.0.2/lib/";
 
@@ -54,9 +54,11 @@ var map = new nokia.maps.map.Display(mapContainer, {
             new nokia.maps.map.component.ScaleBar() 
         ],
         // Map center coordinates
-        'center': [52.51, 13.4] 
+        'center': [39.789017,-86.152146] 
     }
 );
+
+globalNS.map = map;
 
 if (nokia.maps.positioning.Manager) {
     var positioning = new nokia.maps.positioning.Manager();
@@ -71,7 +73,8 @@ function getPositionSuccess (position) {
         /* Create a circle map object  on the  geographical coordinates of
          * provided position with a radius in meters of the accuracy of the position
          */
-        accuracyCircle = new nokia.maps.map.Circle(coords, coords.accuracy);
+        accuracyCircle = new nokia.maps.map.Circle(coords, coords.accuracy),
+        map = globalNS.map;
     
     // Add the circle and marker to the map's object collection so they will be rendered onto the map.
     map.objects.addAll([accuracyCircle, marker]);
@@ -79,6 +82,9 @@ function getPositionSuccess (position) {
      * shape is visible in its entirety in map's viewport. 
      */
     map.setCenter(coords, "default");
+
+    //store the center coords object
+    globalNS.center = { latitude: coords.latitude, longitude: coords.longitude };
 
     setTimeout(doSearch, 0, coords);
 }
@@ -104,12 +110,38 @@ function getPositionError (error) {
     }
 }
 
+function onMapViewChange (event) {
+    var center = event.display.center;
+
+    //ignore event triggers for the same the center.
+    if (globalNS.hasOwnProperty('center') && globalNS.center.latitude === center.latitude && globalNS.center.longitude === center.longitude) {
+        return false;
+    }
+
+    if (event.MAPVIEWCHANGE_CENTER) {
+        //update the center coords object
+        globalNS.center = { latitude: center.latitude, longitude: center.longitude };
+
+        doSearch(center);
+    }
+}
+
 // Create the Clustering Provider
 var ClusterProvider = nokia.maps.clustering.ClusterProvider,
-    clusterProvider = new ClusterProvider(map, {
+    clusterProvider = new ClusterProvider(globalNS.map, {
         eps: 16,
         minPts: 1,
         dataPoints: []
     });
 
-global.clusterProvider = clusterProvider;
+    globalNS.clusterProvider = clusterProvider;
+
+    clusterProvider.addObserver('state', onClusteringStateChanged);
+
+function onClusteringStateChanged (obj, key, state, oldValue) {
+    if (state === ClusterProvider.STATE_CLUSTERED && !globalNS.mapViewChangeSubscribed) {
+        globalNS.mapViewChangeSubscribed = true;
+        globalNS.map.addListener('mapviewchangeend', onMapViewChange);
+    }
+}
+

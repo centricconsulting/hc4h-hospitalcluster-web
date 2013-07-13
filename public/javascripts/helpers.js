@@ -1,4 +1,4 @@
 //just a global namespace
-var global = {
+var globalNS = {
 
 };
