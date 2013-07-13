@@ -6,7 +6,7 @@ import org.apache.commons.math3.ml.clustering._
 import org.apache.commons.math3.stat.StatUtils._
 import models.FacilityRanking
 
-case class ClusterableFacility(facility:FacilityRanking, var cluster:Int = 0) extends Clusterable {
+case class ClusterableFacility(facility:FacilityRanking, var cluster:Int = 0, var weight:Double = 0) extends Clusterable {
   def getPoint: Array[Double] = {Array(facility.averageCharges)}
 }
 
@@ -19,8 +19,13 @@ object KMeansClusterer {
     val clusterer = new KMeansPlusPlusClusterer[ClusterableFacility](numClusters, 10)
     val facilities = toCluster.map(new ClusterableFacility(_))
     val clustered = clusterer.cluster(facilities)
+    clustered.map{l =>
+      val fs = l.getPoints
+      val avg = fs.map(_.facility.averageCharges).sum / fs.length
+      l.getPoints.foreach(_.weight = avg)
+    }
     var index = 0
-    clustered.foreach{lst => index = index+1; lst.getPoints.foreach(_.cluster = index)}
+    clustered.sortBy(_.getPoints()(0).weight).foreach{lst => index = index+1; lst.getPoints.foreach(_.cluster = index)}
 
     facilities
   }
