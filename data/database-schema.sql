@@ -156,4 +156,4 @@ update facilities set outcome_rank=2346.72860188852 where outcome_rank is null;
 alter table facilities alter column outcome_rank set not null;
 drop table facility_outcome_ranks;
 
---vacuum full analyze;
+vacuum full analyze;
