@@ -40,8 +40,8 @@ object ApiController extends Controller {
                     "city" -> f.facility.facility.city,
                     "state" -> f.facility.facility.state,
                     "zip" -> f.facility.facility.zip,
-                    "lat" -> f.facility.facility.latitude.toString,
-                    "lon" -> f.facility.facility.longitude.toString,
+                    "latitude" -> f.facility.facility.latitude.toString,
+                    "longitude" -> f.facility.facility.longitude.toString,
                     "cluster" -> f.cluster.toString
                   )
                 )

@@ -111,8 +111,8 @@ grant select on facilities to wwwrun;
 -- General permissions required
 grant select on spatial_ref_sys to wwwrun;
 
-copy patient_charges from '/Users/stetzer/code-projects/code4health/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
-copy survey_results from '/Users/stetzer/code-projects/code4health/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
+copy patient_charges from '/Users/ploke/Documents/GitHub/hc4h-hospitalcluster-web/data/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
+copy survey_results from '/Users/ploke/Documents/GitHub/hc4h-hospitalcluster-web/data/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
 
 insert into facilities (id, name, address, city, state, zip)
   select distinct provider_id, provider_name, provider_address, provider_city, provider_state, provider_zip from patient_charges;
@@ -128,7 +128,7 @@ alter table patient_charges drop column provider_zip;
 
 -- TODO - this is messy, find a better way
 truncate table facilities;
-copy facilities from '/Users/stetzer/code-projects/code4health/data/facilities-geocoded.csv' csv;
+copy facilities from '/Users/ploke/Documents/GitHub/hc4h-hospitalcluster-web/data/facilities-geocoded.csv' csv;
 alter table patient_charges add constraint "patient_charges_facility_id_fkey" foreign key (facility_id) references facilities(id);
 alter table facilities add column geo_point geography;
 update facilities set geo_point=ST_Point(longitude, latitude);
