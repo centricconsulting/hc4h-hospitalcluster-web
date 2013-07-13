@@ -94,6 +94,14 @@ create table survey_results (
   footnotes varchar(2000)
 );
 
+drop table if exists facility_outcome_ranks cascade;
+create table facility_outcome_ranks (
+  id int not null primary key,
+  rank float not null
+);
+
+copy facility_outcome_ranks from '/Users/stetzer/code-projects/code4health/data/Hospital_Outcome_Of_Care_Measures.csv.preprocessed' csv;
+
 grant select on treatment_groups to wwwrun;
 grant select on treatments to wwwrun;
 grant select on patient_charges to wwwrun;
@@ -133,5 +141,13 @@ alter table patient_charges alter column treatment_id set not null;
 alter table patient_charges drop column treatment;
 
 alter table patient_charges add primary key(treatment_id, facility_id);
+
+-- Add relative outcome ranks to facilities table, drop corresponding staging table
+alter table facilities add column outcome_rank float;
+update facilities f set outcome_rank=(select rank from facility_outcome_ranks where id=f.id);
+-- 54 facilities have no ranking in the dataset, so let's assign them to the middle of the road
+update facilities set outcome_rank=2346.72860188852 where outcome_rank is null;
+alter table facilities alter column outcome_rank set not null;
+drop table facility_outcome_ranks;
 
 vacuum full analyze;
