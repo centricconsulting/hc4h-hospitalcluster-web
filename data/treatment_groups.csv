@@ -1,19 +1,9 @@
-1,Heart Attack
-2,Heart Failure
-3,Chest Pain
-4,Abnormal Heartbeat
-5,Percutaneous Transluminal Corornary Angioplasty
-6,Asthma
-7,Respiratory Failure
-8,Hypertension (High Blood Pressure)
-9,Blood Clot In Extremeties
-10,Vascular Repair
-11,Diabetes
-12,Liver Disease
-13,Kidney Failure
-14,Kidney and Urinary Tract Infection
-15,Medical Back
-16,General Cardiac Disorders
-17,General Nervous System Disorders
-18,Back and Muscle Disorders
-19,Blood Disorders
+1,Respiratory Disorders (eg. Asthma)
+2,Vascular Disorders
+3,Diabetes
+4,Liver Disease
+5,Kidney Disorders
+6,Medical Back
+7,Cardiac Disorders
+8,General Nervous System Disorders
+9,Blood Disorders
