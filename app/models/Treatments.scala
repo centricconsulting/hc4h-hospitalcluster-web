@@ -4,10 +4,17 @@ import anorm._
 import play.api.db._
 import play.api.Play._
 
+case class TreatmentGroup(id:Int, description:String)
+
 object Treatments {
-  def findAllTreatments : Seq[String] = {
+  def findAllTreatments : Seq[TreatmentGroup] = {
     DB.withConnection { implicit connection =>
-      SQL("select description from treatments").apply().map(_[String]("description")).toList
+      SQL("select id, description from treatment_groups")
+        .apply()
+        .map{ row =>
+          TreatmentGroup(row[Int]("id"), row[String]("description"))
+        }
+        .toList
     }
   }
 }

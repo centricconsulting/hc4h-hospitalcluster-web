@@ -8,16 +8,29 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import models.{Facilities, Treatments}
+import models.{Facilities, TreatmentGroup, Treatments}
 import helper.{ClusterableFacility, KMeansClusterer}
 
 object ApiController extends Controller {
-  def listTreatments = Action {
+  def listTreatmentGroups = Action {
     val fTreatments = scala.concurrent.Future { Treatments.findAllTreatments }
     val fTimeout = play.api.libs.concurrent.Promise.timeout("Backend timeout", 2.seconds)
     Async {
       Future.firstCompletedOf(Seq(fTreatments, fTimeout)).map {
-        case l: Seq[String] => Ok(toJson(l))
+        case l: Seq[TreatmentGroup] => Ok(
+          toJson(
+            Map(
+              "treatments" -> l.map{ t =>
+                toJson(
+                  Map(
+                    "id" -> t.id.toString,
+                    "description" -> t.description
+                  )
+                )
+              }
+            )
+          )
+        )
         case s: String => InternalServerError(s)
       }
     }
