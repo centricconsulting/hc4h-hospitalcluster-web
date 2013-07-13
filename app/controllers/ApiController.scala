@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import models.{FacilityRanking, Facilities, Treatments}
+import models.{Facilities, Treatments}
 import helper.{ClusterableFacility, KMeansClusterer}
 
 object ApiController extends Controller {
