@@ -36,9 +36,9 @@ object ApiController extends Controller {
     }
   }
 
-  def findFacilitiesByGeography(latitude:Double, longitude:Double, sort:String) = Action { request =>
+  def findFacilitiesByGeographyAndTreatmentGroup(latitude:Double, longitude:Double, treatmentGroupId:Int, sort:String) = Action { request =>
     val sortParams = sort.split(",")
-    val fResult = scala.concurrent.Future { KMeansClusterer.clusterVals(Facilities.findNearestFacilities(latitude, longitude), sortParams) }
+    val fResult = scala.concurrent.Future { KMeansClusterer.clusterVals(Facilities.findNearestFacilities(latitude, longitude, treatmentGroupId), sortParams) }
     val fTimeout = play.api.libs.concurrent.Promise.timeout("Backend timeout", 2.seconds)
     Async {
       Future.firstCompletedOf(Seq(fResult, fTimeout)).map {
@@ -50,6 +50,7 @@ object ApiController extends Controller {
                   Map(
                     "distance" -> f.facility.distance.toString,
                     "charges" -> f.facility.averageCharges.toString,
+                    "name" -> f.facility.facility.name,
                     "address" -> f.facility.facility.address,
                     "city" -> f.facility.facility.city,
                     "state" -> f.facility.facility.state,
