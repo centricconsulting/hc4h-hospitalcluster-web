@@ -8,16 +8,17 @@ setTimeout(function () {
 
     $search.anima({x:'-98%'}, 400);
 
-    $search.mouseover(function (e) {
-    	if ($(e.target).attr('type') === 'range') {
-    		return false;
-    	}
+    $search.click(function (e) {
+        var value = '0';
 
     	if ($search.hasClass('slideLeft')) {
     		$search.removeClass('slideLeft');
-    	}
+    	} else {
+            $search.addClass('slideLeft');
+            value = '-98%';
+        }
 
-    	$search.anima({x: '0'}, 400);
+    	$search.anima({x: value}, 400);
 	});
 }, 1500);
 
@@ -38,7 +39,12 @@ function getSortOrder () {
 
 function doSearch (coords) {
 	//make API call
-    $.getJSON('/api/findFacilities', { lat: coords.latitude, lon: coords.longitude, sort: getSortOrder() }, searchSuccess).fail(searchError);
+    $.getJSON('/api/findFacilities', { 
+        lat: coords.latitude, 
+        lon: coords.longitude, 
+        sort: getSortOrder(),
+        treatment_group_id: 1,
+    }, searchSuccess).fail(searchError);
 }
 
 function searchSuccess (data) {
@@ -55,7 +61,9 @@ function searchSuccess (data) {
             latitude: parseFloat(facility.latitude), 
             longitude: parseFloat(facility.longitude),
             value: parseFloat(facility.cluster),
-            address: facility.address + ', ' + facility.city + ', ' + facility.state + ', ' + facility.zip
+            address: facility.address + ', ' + facility.city + ', ' + facility.state + ', ' + facility.zip,
+            name: facility.name,
+            avgCharges: parseInt(facility.charges, 10)
         };
 
         markers.push(marker);

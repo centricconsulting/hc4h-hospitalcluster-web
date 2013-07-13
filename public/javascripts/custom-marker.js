@@ -45,46 +45,20 @@ CustomTheme.prototype.closeTheBubble = function () {
 	}
 }
 
-CustomTheme.prototype.getClusterPresentation = function (data) {
-	var that = this,
-		clusterSize = data.getSize(),
-		points = data.getPoints(),
-		markerPos = that.getClusterCoordinate(points),
-		clusterColor = MarkerTheme.getColor(clusterSize),
-		charLength = (clusterSize + "").length,
-		delta = charLength * 2 + 4,
-		innerRad = charLength == 1 ? 8 : (charLength * 3 + 5),
-		size = innerRad * 2 + delta * 2,
-		dataPoint = points[0],
-		i = 0,
-		infoHtml = that._getBubbleContent(dataPoint),
-		marker,
-		container = new nokia.maps.map.Container();
-
-	if (!data || clusterSize === 0) {
-		throw "Please provide at least one data point";
-	}
-
-	marker = new nokia.maps.map.StandardMarker(markerPos, {
-		text: ''
-	});
-
-	marker.addListener(globalNS.TOUCHORCLICK, function () {
-		that.closeTheBubble();
-
-		that._prevBubbleHandle = that._infoBubbles.showBubble(infoHtml, markerPos);
-	});
-
-	container.objects.add(new nokia.maps.map.StandardMarker(markerPos, {
-		text: ''
-	}));
-	container.objects.add(marker);
-
-	return container;
+CustomTheme.prototype.getClusterPresentation = function (dataPoints) {
+	if (dataPoints.getSize() > 0) {
+        return new nokia.maps.map.StandardMarker (dataPoints.getBounds().getCenter(), {  
+                text:  dataPoints.getSize(),  
+                brush: {
+                    color: '#FF0000'
+                }
+            }
+        );
+    }
 };
 
 CustomTheme.prototype._getBubbleContent = function (dataPoint) {
-	return '<h5>' + dataPoint.address + '</h5>';
+	return '<h5>' + dataPoint.name + '<h5><br/><h6>' + dataPoint.address + '</h6><br/><h6>Avg. Total Charges: $' + dataPoint.avgCharges + '</h6>';
 };
 
 CustomTheme.prototype.getNoisePresentation = function (dataPoint) {
