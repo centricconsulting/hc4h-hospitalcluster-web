@@ -1,4 +1,4 @@
--- To read the data files into a copy of postgres, first trim the header line from the datafile, then execute the following command (with your location for your trimmed datafile) at the psql shell:
+﻿-- To read the data files into a copy of postgres, first trim the header line from the datafile, then execute the following command (with your location for your trimmed datafile) at the psql shell:
 -- copy patient_charges from '<location to Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv>' csv;
 
 -- Note that the Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv file must first be pre-processed to remove percentage symbols from numeric data columns
@@ -7,8 +7,6 @@
 -- Note: requires postgis to be installed
 --create extension postgis;
 --create extension postgis_topology;
-\set datapath '\'/Users/stetzer/code-projects/code4health/data'
-
 drop table if exists facilities cascade;
 create table facilities (
   id int not null primary key,
@@ -101,7 +99,7 @@ create table facility_outcome_ranks (
   rank float not null
 );
 
-copy facility_outcome_ranks from :datapath/Hospital_Outcome_Of_Care_Measures.csv.preprocessed' csv;
+copy facility_outcome_ranks from 'C:\Code\HHC\hc4h-hospitalcluster-web\data\Hospital_Outcome_Of_Care_Measures.csv.preprocessed' csv;
 
 grant select on treatment_groups to wwwrun;
 grant select on treatments to wwwrun;
@@ -112,8 +110,8 @@ grant select on facilities to wwwrun;
 -- General permissions required
 grant select on spatial_ref_sys to wwwrun;
 
-copy patient_charges from :datapath/Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
-copy survey_results from :datapath/Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
+copy patient_charges from 'C:\Code\HHC\hc4h-hospitalcluster-web\data\Medicare_Provider_Charge_Inpatient_DRG100_FY2011.csv.noheader' csv;
+copy survey_results from 'C:\Code\HHC\hc4h-hospitalcluster-web\data\Survey_of_Patients__Hospital_Experiences__HCAHPS_.csv.processed' csv;
 
 insert into facilities (id, name, address, city, state, zip)
   select distinct provider_id, provider_name, provider_address, provider_city, provider_state, provider_zip from patient_charges;
@@ -129,18 +127,23 @@ alter table patient_charges drop column provider_zip;
 
 -- TODO - this is messy, find a better way
 truncate table facilities;
-copy facilities from :datapath/facilities-geocoded.csv' csv;
+copy facilities from 'C:\Code\HHC\hc4h-hospitalcluster-web\data\facilities-geocoded.csv' csv;
 alter table patient_charges add constraint "patient_charges_facility_id_fkey" foreign key (facility_id) references facilities(id);
 alter table facilities add column geo_point geography;
 update facilities set geo_point=ST_Point(longitude, latitude);
 alter table facilities alter column geo_point set not null;
 
-insert into treatments (id, description) select distinct substr(treatment, 0, 4)::int, substr(treatment, 7, length(treatment)) from patient_charges;
+--insert into treatments (id, description) select distinct substr(treatment, 0, 4)::int, substr(treatment, 7, length(treatment)) from patient_charges;
+truncate table treatment_groups cascade;
+copy treatment_groups from 'C:\Code\HHC\hc4h-hospitalcluster-web\data\treatment_groups.csv' csv;
+alter sequence public.treatment_groups_id_seq start with 20;
+
+copy treatments from 'C:\Code\HHC\hc4h-hospitalcluster-web\data\treatments.csv' csv;
 alter table patient_charges add column treatment_id int references treatments(id);
 update patient_charges set treatment_id=(select id from treatments where id=substr(treatment, 0, 4)::int);
+delete from patient_charges where treatment_id is null;
 alter table patient_charges alter column treatment_id set not null;
 alter table patient_charges drop column treatment;
-
 alter table patient_charges add primary key(treatment_id, facility_id);
 
 -- Add relative outcome ranks to facilities table, drop corresponding staging table
@@ -151,4 +154,4 @@ update facilities set outcome_rank=2346.72860188852 where outcome_rank is null;
 alter table facilities alter column outcome_rank set not null;
 drop table facility_outcome_ranks;
 
-vacuum full analyze;
+--vacuum full analyze;
