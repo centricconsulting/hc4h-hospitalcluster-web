@@ -1,6 +1,4 @@
-var gfx = nokia.maps.gfx,
-    GraphicsImage = gfx.GraphicsImage,
-	parseCss = gfx.Color.parseCss,
+var GraphicsImage = nokia.maps.gfx.GraphicsImage,
 	MarkerTheme = nokia.maps.clustering.MarkerTheme;
 
 var CustomTheme = function (display, infoBubbles) {
@@ -46,11 +44,29 @@ CustomTheme.prototype.closeTheBubble = function () {
 }
 
 CustomTheme.prototype.getClusterPresentation = function (dataPoints) {
-	if (dataPoints.getSize() > 0) {
+	if (dataPoints.getSize() > 0 && dataPoints.getSize() <= 5) {
         return new nokia.maps.map.StandardMarker (dataPoints.getBounds().getCenter(), {  
                 text:  dataPoints.getSize(),  
                 brush: {
-                    color: '#FF0000'
+                    color: '#6DE8C5'
+                }
+            }
+        );
+    }
+	if (dataPoints.getSize() > 5 && dataPoints.getSize() <= 10) {
+        return new nokia.maps.map.StandardMarker (dataPoints.getBounds().getCenter(), {  
+                text:  dataPoints.getSize(),  
+                brush: {
+                    color: '#F2C744'
+                }
+            }
+        );
+    }
+	else if (dataPoints.getSize() > 10) {
+        return new nokia.maps.map.StandardMarker (dataPoints.getBounds().getCenter(), {  
+                text:  dataPoints.getSize(),  
+                brush: {
+                    color: '#F28D44'
                 }
             }
         );
@@ -58,7 +74,13 @@ CustomTheme.prototype.getClusterPresentation = function (dataPoints) {
 };
 
 CustomTheme.prototype._getBubbleContent = function (dataPoint) {
-	return '<h5>' + dataPoint.name + '<h5><br/><h6>' + dataPoint.address + '</h6><br/><h6>Avg. Total Charges: $' + dataPoint.avgCharges + '</h6>';
+	var html = '<h5>' + dataPoint.name + '</h5><br/><address>' +
+	  dataPoint.address + '<br>' + 
+	  dataPoint.city + ', ' + dataPoint.state + ' ' + dataPoint.zip + '<br><br>' +
+	  '<span class="label label-info">Avg. Total Charges: $' + dataPoint.avgCharges + '</span>' +
+	'</address>';
+
+	return html;
 };
 
 CustomTheme.prototype.getNoisePresentation = function (dataPoint) {
@@ -69,9 +91,6 @@ CustomTheme.prototype.getNoisePresentation = function (dataPoint) {
 			text: ''
 		});
 	
-	container.objects.add(new nokia.maps.map.StandardMarker(dataPoint, {
-		text: ''
-	}));
 	container.objects.add(marker);
 
 	container.addListener(globalNS.TOUCHORCLICK, function () {

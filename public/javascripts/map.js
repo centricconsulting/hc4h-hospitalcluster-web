@@ -67,8 +67,8 @@ var map = new nokia.maps.map.Display(mapContainer, {
 );
 
 globalNS.map = map;
-globalNS.TOUCH = nokia.maps.dom.Page.browser.touch
-globalNS.TOUCHORCLICK = globalNS.TOUCHORCLICK ? "tap" : "click";
+globalNS.TOUCH = nokia.maps.dom.Page.browser.touch;
+globalNS.TOUCHORCLICK = globalNS.TOUCH ? 'tap' : 'click';
 
 $.getJSON('/api/listTreatmentGroups', function (data) {
     var treatments = data.treatments;

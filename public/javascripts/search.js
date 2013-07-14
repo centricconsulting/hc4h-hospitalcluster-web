@@ -1,24 +1,37 @@
 var $search = $('#search-panel');
+var $sideBar = $('#sideBar');
 
-//init the html5 sortable control
-$('.sortable').sortable().bind('sortupdate', onSortOrderUpdate);
+var $sortable = $('.sortable');
+$sortable.sortable();
+$sortable.disableSelection();
+$sortable.bind("sortstop", function (event, ui) {
+  $sortable.listview('refresh');
+
+  onSortOrderUpdate();
+});
 
 setTimeout(function () {
 	$search.addClass('slideLeft');
 
-    $search.anima({x:'-98%'}, 400);
+    $search.anima({x:'-100%'}, 400);
 
-    $search.click(function (e) {
-        var value = '0';
+    $sideBar.find('.search').click(function (e) {
+        var $currentTarget = $(e.currentTarget);
+        var value = '12%';
+        if ($currentTarget.hasClass('cbp-vicurrent')) {
+            $(e.currentTarget).removeClass('cbp-vicurrent');
 
-    	if ($search.hasClass('slideLeft')) {
-    		$search.removeClass('slideLeft');
-    	} else {
             $search.addClass('slideLeft');
-            value = '-98%';
+            value = '-100%';
+        } else {
+            $(e.currentTarget).addClass('cbp-vicurrent');
+
+            $search.removeClass('slideLeft');
         }
 
-    	$search.anima({x: value}, 400);
+    	setTimeout(function () {
+            $search.anima({x: value}, 400);
+        }, 0);
 	});
 }, 1500);
 
@@ -61,7 +74,10 @@ function searchSuccess (data) {
             latitude: parseFloat(facility.latitude), 
             longitude: parseFloat(facility.longitude),
             value: parseFloat(facility.cluster),
-            address: facility.address + ', ' + facility.city + ', ' + facility.state + ', ' + facility.zip,
+            address: facility.address,
+            city: facility.city,
+            state: facility.state,
+            zip: facility.zip,
             name: facility.name,
             avgCharges: parseInt(facility.charges, 10)
         };
