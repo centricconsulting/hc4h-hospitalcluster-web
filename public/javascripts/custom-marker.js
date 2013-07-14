@@ -77,7 +77,8 @@ CustomTheme.prototype._getBubbleContent = function (dataPoint) {
 	var html = '<h5>' + dataPoint.name + '</h5><br/><address>' +
 	  dataPoint.address + '<br>' + 
 	  dataPoint.city + ', ' + dataPoint.state + ' ' + dataPoint.zip + '<br><br>' +
-	  '<span class="label label-info">Avg. Total Charges: $' + dataPoint.avgCharges + '</span>' +
+	  '<span class="label label-info">Avg. Total Charges: $' + dataPoint.avgCharges + '</span><br/><br/>' +
+      '<span class="label label-info">Outcome Rank: ' + dataPoint.outcomeRank + '</span>' +
 	'</address>';
 
 	return html;
@@ -87,9 +88,38 @@ CustomTheme.prototype.getNoisePresentation = function (dataPoint) {
 	var that = this,
 		infoHtml = that._getBubbleContent(dataPoint),
 		container = new nokia.maps.map.Container(),
-		marker = new nokia.maps.map.StandardMarker(dataPoint, {
-			text: ''
-		});
+        color = '#6DE8C5';
+
+    switch (dataPoint.value) {
+    case 1:
+        color = '#1B8EE0';
+
+        break;
+    case 2:
+        color = '#F5F23B';
+
+        break;
+    case 3:
+        color = '#F5AD3B';
+
+        break;
+    case 4:
+        color = '#F53B3B';
+
+        break;
+    case 0:
+    default:
+        color = '#6DE8C5';
+
+        break;
+    }
+
+    marker = new nokia.maps.map.StandardMarker(dataPoint, { 
+            brush: {
+                color: color
+            }
+        }
+    );
 	
 	container.objects.add(marker);
 

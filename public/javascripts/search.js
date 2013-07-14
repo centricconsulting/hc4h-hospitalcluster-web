@@ -79,6 +79,7 @@ function searchSuccess (data) {
             state: facility.state,
             zip: facility.zip,
             name: facility.name,
+            outcomeRank: facility.outcomeRank,
             avgCharges: parseInt(facility.charges, 10)
         };
 
