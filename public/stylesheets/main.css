@@ -239,4 +239,5 @@ and (max-device-width : 480px) {
 
 #treatmentGroups {
   margin-top: -40px;
+  width: 200px;
 }
