@@ -91,23 +91,23 @@ CustomTheme.prototype.getNoisePresentation = function (dataPoint) {
         color = '#6DE8C5';
 
     switch (dataPoint.value) {
-    case 1:
+    case 2:
         color = '#1B8EE0';
 
         break;
-    case 2:
+    case 3:
         color = '#F5F23B';
 
         break;
-    case 3:
+    case 4:
         color = '#F5AD3B';
 
         break;
-    case 4:
+    case 5:
         color = '#F53B3B';
 
         break;
-    case 0:
+    case 1:
     default:
         color = '#6DE8C5';
 
