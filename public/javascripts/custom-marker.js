@@ -109,7 +109,7 @@ CustomTheme.prototype.getNoisePresentation = function (dataPoint) {
         break;
     case 1:
     default:
-        color = '#6DE8C5';
+        color = '#1BE050';
 
         break;
     }
